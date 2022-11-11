@@ -1,4 +1,4 @@
-import { StyleSheet, SafeAreaView, Text, Image, FlatList, List } from "react-native";
+import { StyleSheet, SafeAreaView, Text, Image, FlatList, List} from "react-native";
 import { millisToMinutesAndSeconds, useSpotifyAuth } from "./utils";
 import { Themes } from "./assets/Themes";
 import { Images } from "./assets/Themes";
@@ -7,12 +7,23 @@ import Pressable from "react-native/Libraries/Components/Pressable/Pressable";
 import images from "./assets/Images/images";
 import { useState } from "react";
 import Song from './Song';
+import { WebView } from "react-native-webview";
+import { createStackNavigator } from '@react-navigation/stack';
+import 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
+import { NavigationContainer } from '@react-navigation/native';
+import { Component } from 'react';
+import {Dimensions} from 'react-native';
 
 
 
-
+import { render } from "react-dom";
+import { clickProps } from "react-native-web/dist/cjs/modules/forwardedProps";
+import { View } from "react-native-web";
+const Stack = createStackNavigator();
 
 export default function App() {
+  
   // Pass in true to useSpotifyAuth to use the album ID (in env.js) instead of top tracks
   const { token, tracks, getSpotifyAuth } = useSpotifyAuth(true);
 
@@ -56,7 +67,8 @@ export default function App() {
     //index = {item.index}
     //id = {item.id}
     imageUrl={item.album.images[0].url}
-    
+    preview_url= {item.preview_url}
+    external_urls={item.external_urls.spotify}
     title={item.name}
     artist={item.artists[0].name}
     album={item.album.name}
@@ -86,11 +98,61 @@ let contentDisplayed = null;
  }
   console.log(tracks)
   
+
+function HomeScreen ({ navigation }){
   return (
     <SafeAreaView style={styles.container}>
       {/* TODO: Your code goes here */}
       {contentDisplayed}
     </SafeAreaView>
+    
+  )
+}
+function Screen2 ({ navigation, route }){
+     const { preview_url } = route.params;
+      console.log("preview url: " + preview_url)
+  
+  return(
+  <SafeAreaView style={styles.container}>
+      {/* TODO: Your code goes here */}
+      <WebView
+        style = {{marginTop: 20, width: Dimensions.get('window').width, height: Dimensions.get('window').height}}
+
+         source={{ uri: preview_url }}
+      />
+    </SafeAreaView>
+  )
+}
+
+ 
+
+function Screen3 ({ navigation, route }){
+  const { external_urls } = route.params;
+      console.log(external_urls)
+  
+  return(
+  <SafeAreaView style={styles.container}>
+      {/* TODO: Your code goes here */}
+      <WebView
+         style = {{marginTop: 20, width: Dimensions.get('window').width, height: Dimensions.get('window').height}}
+         source={{ uri: external_urls }}
+      />
+    </SafeAreaView>
+  )
+  }
+
+
+
+
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen options={{headerShown: false}} name="HomeScreen" component={HomeScreen}/>
+        <Stack.Screen name="Screen2" component={Screen2}/>
+        <Stack.Screen name="Screen3" component={Screen3}/>
+    
+    </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
