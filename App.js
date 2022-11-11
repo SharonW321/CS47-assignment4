@@ -1,12 +1,12 @@
-import { StyleSheet, SafeAreaView, Text, Image, } from "react-native";
+import { StyleSheet, SafeAreaView, Text, Image, FlatList, List } from "react-native";
 import { millisToMinutesAndSeconds, useSpotifyAuth } from "./utils";
 import { Themes } from "./assets/Themes";
 import { Images } from "./assets/Themes";
-import { FlatList } from "react-native-web";
+//import { FlatList } from "react-native-web";
 import Pressable from "react-native/Libraries/Components/Pressable/Pressable";
 import images from "./assets/Images/images";
-
-
+import { useState } from "react";
+import Song from './Song';
 
 
 
@@ -14,7 +14,7 @@ import images from "./assets/Images/images";
 
 export default function App() {
   // Pass in true to useSpotifyAuth to use the album ID (in env.js) instead of top tracks
-  const { token, tracks, getSpotifyAuth } = useSpotifyAuth();
+  const { token, tracks, getSpotifyAuth } = useSpotifyAuth(true);
 
   const SpotifyAuthButton = () => {
     return (
@@ -24,43 +24,55 @@ export default function App() {
             <Text style= {{color: Themes.colors.white}}>Connect with Spotify</Text> 
         </Pressable> 
         </SafeAreaView>
+        
     )
   
   }
+// const [text, setText] = useState('')
+// const [songs, setSongs] = useState([])
 
-  const Song = ({imageUrl, title, artist, album, duration}) => {
-    return (
-      <SafeAreaView style={styles.song}>
-       <Image style= {{height: 30, width: 30}} source ={imageUrl}/>
-       <Text numberOfLines={1}>{title}</Text> 
-       <Text numberOfLines={1}>{artist}</Text>
-       <Text numberOfLines={1}>{album}</Text>
-       <Text>{millisToMinutesAndSeconds(duration)}</Text>
-      </SafeAreaView>
-    );
-  }
+// const addSong = (song) => {
+//   let newTracks = [...songs]
+//   newTracks.push(song)
+//   setSongs(newTacks)
+// }
 
+  // const Song = ({imageUrl, title, artist, album, duration}) => {
+  //   return (
+  //     <SafeAreaView style={styles.song}>
+  //      <Image style= {{height: 30, width: 30}} source ={imageUrl}/>
+  //      <Text numberOfLines={1}>{title}</Text> 
+  //      <Text numberOfLines={1}>{artist}</Text>
+  //      <Text numberOfLines={1}>{album}</Text>
+  //      <Text>{millisToMinutesAndSeconds(duration)}</Text>
+  //     </SafeAreaView>
+  //   );
+  // }
+
+ 
   
-  const renderSong = ({item, index}) => (
-<Song
-  index = {item.index}
-  imageUrl={item.imageUrl}
-  title={item.title}
-  artist={item.artist}
-  album={item.album}
-  duration={item.duration} />
+  const renderSong = (item, index) => (
+  <Song
+    //index = {item.index}
+    //id = {item.id}
+    imageUrl={item.album.images[0].url}
+    
+    title={item.name}
+    artist={item.artists[0].name}
+    album={item.album.name}
+    duration={item.duration_ms} />
 
   );
-
-
+  //console.log(item.imageUrl)
 const TrackList = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList>
+      <FlatList
       data = {tracks}
-      renderItem={(item) =>renderSong(item)}
-      keyExtractor = {(item) => item.index}
-      </FlatList>
+      keyExtractor = {(item) => item.id}
+
+      renderItem={({item}) => renderSong(item)}
+      />
     </SafeAreaView>
   )
 }
@@ -68,20 +80,16 @@ const TrackList = () => {
 let contentDisplayed = null;
 
   if (token) {
-    contentDisplayed = <SpotifyAuthButton/>
-    token="true"
-  } else {
     contentDisplayed = <TrackList/>
+  } else {
+    contentDisplayed = <SpotifyAuthButton/>
  }
+  console.log(tracks)
+  
   return (
     <SafeAreaView style={styles.container}>
       {/* TODO: Your code goes here */}
-      {contentDisplayed}  
-
-         
-        
-
-        
+      {contentDisplayed}
     </SafeAreaView>
   );
 }
@@ -108,7 +116,11 @@ const styles = StyleSheet.create({
   song:{
     flexDirection: "row",
     flex: 1,
+    marginHorizontal: 1,
     backgroundColor: Themes.colors.background,
-  },
+    justifyContent: 'space-between',
+    alignItems: "center",
+
+  }
 
 });
